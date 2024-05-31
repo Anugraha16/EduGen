@@ -1,10 +1,7 @@
-// signup.js
-
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const User = require('../models/user');
-
 
 router.post('/', async (req, res) => {
   const { name, email, password } = req.body;
@@ -14,8 +11,6 @@ router.post('/', async (req, res) => {
     if (user) {
       return res.status(400).json({ msg: 'User already exists' });
     }
-
-
     user = new User({
       name,
       email,
@@ -30,7 +25,7 @@ router.post('/', async (req, res) => {
 
     res.json({ msg: 'User registered successfully' });
   } catch (err) {
-    console.error(err.message);
+    console.error('Error in signup route:', err.message); 
     res.status(500).send('Server Error');
   }
 });

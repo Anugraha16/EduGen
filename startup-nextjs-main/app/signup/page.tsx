@@ -1,44 +1,81 @@
-"use client"
+"use client";
 import Link from "next/link";
-import { useState } from "react";
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import { useState } from 'react';
 
-const SignupPage = () => {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-  });
+interface FormData {
+  name: string;
+  email: string;
+  password: string;
+  terms: boolean;
+}
 
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target;
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      [name]: value,
-    }));
-  }
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+const SignupPage: React.FC = () => {
+  const [error, setError] = useState<string | null>(null);
 
-    try {
-      const response = await fetch('http://localhost:5000/signup', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
+  const formik = useFormik<FormData>({
+    initialValues: {
+      name: "",
+      email: "",
+      password: "",
+      terms: false,
+    },
+    validationSchema: Yup.object({
+      name: Yup.string()
+        .min(2, "Name must be at least 2 characters")
+        .required("Full Name is required"),
+      email: Yup.string()
+        .email("Invalid email address")
+        .required("Work Email is required"),
+      password: Yup.string()
+        .matches(/[A-Z]/, "Password must contain at least one uppercase letter")
+        .matches(/[a-z]/, "Password must contain at least one lowercase letter")
+        .matches(/[0-9]/, "Password must contain at least one number")
+        .matches(
+          /[!@#$%^&*(),.?":{}|<>]/,
+          "Password must contain at least one special character",
+        ),
+      terms: Yup.bool()
+        .oneOf([true], "You must accept the terms and conditions")
+        .required("You must accept the terms and conditions"),
+    }),
+    onSubmit: async (values) => {
+      try {
+        const { terms, ...dataToSend } = values;
+        const response = await fetch("http://localhost:5000/signup", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(dataToSend),
+        });
 
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
+        if (!response.ok) {
+          console.error(
+            "Failed to sign up:",
+            response.status,
+            response.statusText,
+          );
+          throw new Error("Failed to sign up");
+        }
+
+        const contentType = response.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+          console.error("Unexpected content type:", contentType);
+          throw new Error("Unexpected response from server");
+        }
+
+        const data = await response.json();
+        console.log("User registered successfully:", data);
+        // Handle successful signup, e.g., redirect to another page
+      } catch (error) {
+        console.error("Signup error:", error.message);
+        setError("User already exists");
       }
-
-      const data = await response.json();
-      console.log(data);
-    } catch (error) {
-      console.error('Error:', error);
-    }
-  };
+    },
+  });
 
   return (
     <>
@@ -46,11 +83,11 @@ const SignupPage = () => {
         <div className="container">
           <div className="-mx-4 flex flex-wrap">
             <div className="w-full px-4">
-              <div className="shadow-three mx-auto max-w-[500px] rounded bg-white px-6 py-10 dark:bg-dark sm:p-[60px]">
+              <div className="mx-auto max-w-[500px] rounded bg-white px-6 py-10 shadow-three dark:bg-dark sm:p-[60px]">
                 <h3 className="mb-3 text-center text-2xl font-bold text-black dark:text-white sm:text-3xl">
                   Create your account
                 </h3>
-                <button className="border-stroke dark:text-body-color-dark dark:shadow-two mb-6 flex w-full items-center justify-center rounded-sm border bg-[#f8f8f8] px-6 py-3 text-base text-body-color outline-none transition-all duration-300 hover:border-primary hover:bg-primary/5 hover:text-primary dark:border-transparent dark:bg-[#2C303B] dark:hover:border-primary dark:hover:bg-primary/5 dark:hover:text-primary dark:hover:shadow-none">
+                <button className="mb-6 flex w-full items-center justify-center rounded-sm border border-stroke bg-[#f8f8f8] px-6 py-3 text-base text-body-color outline-none transition-all duration-300 hover:border-primary hover:bg-primary/5 hover:text-primary dark:border-transparent dark:bg-[#2C303B] dark:text-body-color-dark dark:shadow-two dark:hover:border-primary dark:hover:bg-primary/5 dark:hover:text-primary dark:hover:shadow-none">
                   <span className="mr-3">
                     <svg
                       width="20"
@@ -87,7 +124,7 @@ const SignupPage = () => {
                   Sign in with Google
                 </button>
 
-                <button className="border-stroke dark:text-body-color-dark dark:shadow-two mb-6 flex w-full items-center justify-center rounded-sm border bg-[#f8f8f8] px-6 py-3 text-base text-body-color outline-none transition-all duration-300 hover:border-primary hover:bg-primary/5 hover:text-primary dark:border-transparent dark:bg-[#2C303B] dark:hover:border-primary dark:hover:bg-primary/5 dark:hover:text-primary dark:hover:shadow-none">
+                <button className="mb-6 flex w-full items-center justify-center rounded-sm border border-stroke bg-[#f8f8f8] px-6 py-3 text-base text-body-color outline-none transition-all duration-300 hover:border-primary hover:bg-primary/5 hover:text-primary dark:border-transparent dark:bg-[#2C303B] dark:text-body-color-dark dark:shadow-two dark:hover:border-primary dark:hover:bg-primary/5 dark:hover:text-primary dark:hover:shadow-none">
                   <span className="mr-3">
                     <svg
                       fill="currentColor"
@@ -108,75 +145,115 @@ const SignupPage = () => {
                   </p>
                   <span className="hidden h-[1px] w-full max-w-[60px] bg-body-color/50 sm:block"></span>
                 </div>
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={formik.handleSubmit}>
                   <div className="mb-8">
                     <label
                       htmlFor="name"
                       className="mb-3 block text-sm text-dark dark:text-white"
                     >
-                      {" "}
-                      Full Name{" "}
+                      Full Name
                     </label>
                     <input
                       type="text"
                       name="name"
                       placeholder="Enter your full name"
-                      value={formData.name}
-                      onChange={handleInputChange}
+                      value={formik.values.name}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
                       autoComplete="name"
-                      className="border-stroke dark:text-body-color-dark dark:shadow-two w-full rounded-sm border bg-[#f8f8f8] px-6 py-3 text-base text-body-color outline-none transition-all duration-300 focus:border-primary dark:border-transparent dark:bg-[#2C303B] dark:focus:border-primary dark:focus:shadow-none"
+                      className={`w-full rounded-sm border border-stroke bg-[#f8f8f8] px-6 py-3 text-base text-body-color outline-none transition-all duration-300 focus:border-primary dark:border-transparent dark:bg-[#2C303B] dark:text-body-color-dark dark:shadow-two dark:focus:border-primary dark:focus:shadow-none ${
+                        formik.touched.name && formik.errors.name
+                          ? "border-red-500"
+                          : ""
+                      }`}
                     />
+                    {formik.touched.name && formik.errors.name ? (
+                      <div className="text-sm text-red-500">
+                        {formik.errors.name}
+                      </div>
+                    ) : null}
                   </div>
+
                   <div className="mb-8">
                     <label
                       htmlFor="email"
                       className="mb-3 block text-sm text-dark dark:text-white"
                     >
-                      {" "}
-                      Work Email{" "}
+                      Work Email
                     </label>
                     <input
                       type="email"
                       name="email"
                       placeholder="Enter your Email"
-                      value={formData.email}
-                      onChange={handleInputChange}
+                      value={formik.values.email}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
                       autoComplete="email"
-                      className="border-stroke dark:text-body-color-dark dark:shadow-two w-full rounded-sm border bg-[#f8f8f8] px-6 py-3 text-base text-body-color outline-none transition-all duration-300 focus:border-primary dark:border-transparent dark:bg-[#2C303B] dark:focus:border-primary dark:focus:shadow-none"
+                      className={`w-full rounded border-[1.5px] py-3 px-5 font-medium text-body-color placeholder-body-color outline-none transition-all focus:border-primary focus-visible:shadow-none dark:bg-[#242B51] dark:border-form-strokedark dark:text-white dark:focus:border-primary ${
+                        formik.touched.email && formik.errors.email ? 'border-red-500' : 'border-[#E9EDF9] dark:border-form-strokedark'
+                      }`}
                     />
+                    {formik.touched.email && formik.errors.email ? (
+                      <div className="text-sm text-red-500">
+                        {formik.errors.email}
+                      </div>
+                    ) : null}
+                    {error=== "User already exists" && (
+                        <div className="text-sm text-red-500">
+                           User already exists
+                        </div>
+                      )}
                   </div>
+                  
+
                   <div className="mb-8">
                     <label
                       htmlFor="password"
                       className="mb-3 block text-sm text-dark dark:text-white"
                     >
-                      {" "}
-                      Your Password{" "}
+                      Your Password
                     </label>
                     <input
                       type="password"
                       name="password"
                       minLength={6}
                       placeholder="Enter your Password"
-                      value={formData.password}
-                      onChange={handleInputChange}
+                      value={formik.values.password}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
                       autoComplete="current-password"
-                      className="border-stroke dark:text-body-color-dark dark:shadow-two w-full rounded-sm border bg-[#f8f8f8] px-6 py-3 text-base text-body-color outline-none transition-all duration-300 focus:border-primary dark:border-transparent dark:bg-[#2C303B] dark:focus:border-primary dark:focus:shadow-none"
+                      className={`w-full rounded-sm border border-stroke bg-[#f8f8f8] px-6 py-3 text-base text-body-color outline-none transition-all duration-300 focus:border-primary dark:border-transparent dark:bg-[#2C303B] dark:text-body-color-dark dark:shadow-two dark:focus:border-primary dark:focus:shadow-none ${
+                        formik.touched.password && formik.errors.password
+                          ? "border-red-500"
+                          : ""
+                      }`}
                     />
+                    {formik.touched.password && formik.errors.password ? (
+                      <div className="text-sm text-red-500">
+                        {formik.errors.password}
+                      </div>
+                    ) : null}
                   </div>
+
                   <div className="mb-8 flex">
                     <label
-                      htmlFor="checkboxLabel"
+                      htmlFor="terms"
                       className="flex cursor-pointer select-none text-sm font-medium text-body-color"
                     >
                       <div className="relative">
                         <input
                           type="checkbox"
-                          id="checkboxLabel"
+                          id="terms"
+                          name="terms"
+                          checked={formik.values.terms}
+                          onChange={formik.handleChange}
+                          onBlur={formik.handleBlur}
                           className="sr-only"
                         />
                         <div className="box mr-4 mt-1 flex h-5 w-5 items-center justify-center rounded border border-body-color border-opacity-20 dark:border-white dark:border-opacity-10">
-                          <span className="opacity-0">
+                          <span
+                            className={`opacity-0 ${formik.values.terms ? "opacity-100" : ""}`}
+                          >
                             <svg
                               width="11"
                               height="8"
@@ -207,13 +284,23 @@ const SignupPage = () => {
                         </a>
                       </span>
                     </label>
+                    {formik.touched.terms && formik.errors.terms ? (
+                      <div className="text-sm text-red-500">
+                        {formik.errors.terms}
+                      </div>
+                    ) : null}
                   </div>
+
                   <div className="mb-6">
-                    <button className="shadow-submit dark:shadow-submit-dark flex w-full items-center justify-center rounded-sm bg-primary px-9 py-4 text-base font-medium text-white duration-300 hover:bg-primary/90">
+                    <button
+                      type="submit"
+                      className="flex w-full items-center justify-center rounded-sm bg-primary px-9 py-4 text-base font-medium text-white shadow-submit duration-300 hover:bg-primary/90 dark:shadow-submit-dark"
+                    >
                       Sign up
                     </button>
                   </div>
                 </form>
+
                 <p className="text-center text-base font-medium text-body-color">
                   Already using EduGen?{" "}
                   <Link href="/signin" className="text-primary hover:underline">
