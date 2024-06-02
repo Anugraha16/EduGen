@@ -1,8 +1,13 @@
 const express=require('express');
 const connectDB = require('./lib/db'); 
 const cors=require('cors');
-const signupRouter = require('./api/signup');
 const app = express();
+const passport = require('passport');
+const signupRouter = require('./routes/signup');
+const authRoutes = require('./routes/auth');
+const sessionConfig = require('./config/session');
+const passportConfig = require('./config/passport');
+
 
 
 connectDB();
@@ -14,6 +19,13 @@ app.get('/', (req, res) => {
   res.send('Welcome to the backend server');
 });
 
+sessionConfig(app);
+
+app.use(passport.initialize());
+app.use(passport.session());
+passportConfig(passport);
+
+app.use('/auth', authRoutes);
 app.use('/signup', signupRouter);
 
 

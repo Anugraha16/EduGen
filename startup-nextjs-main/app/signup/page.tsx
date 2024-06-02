@@ -87,7 +87,9 @@ const SignupPage: React.FC = () => {
                 <h3 className="mb-3 text-center text-2xl font-bold text-black dark:text-white sm:text-3xl">
                   Create your account
                 </h3>
-                <button className="mb-6 flex w-full items-center justify-center rounded-sm border border-stroke bg-[#f8f8f8] px-6 py-3 text-base text-body-color outline-none transition-all duration-300 hover:border-primary hover:bg-primary/5 hover:text-primary dark:border-transparent dark:bg-[#2C303B] dark:text-body-color-dark dark:shadow-two dark:hover:border-primary dark:hover:bg-primary/5 dark:hover:text-primary dark:hover:shadow-none">
+                <button className="mb-6 flex w-full items-center justify-center rounded-sm border border-stroke bg-[#f8f8f8] px-6 py-3 text-base text-body-color outline-none transition-all duration-300 hover:border-primary hover:bg-primary/5 hover:text-primary dark:border-transparent dark:bg-[#2C303B] dark:text-body-color-dark dark:shadow-two dark:hover:border-primary dark:hover:bg-primary/5 dark:hover:text-primary dark:hover:shadow-none" onClick={() => {
+                    window.location.href = 'http://localhost:5000/auth/google';
+                  }}>
                   <span className="mr-3">
                     <svg
                       width="20"
@@ -124,7 +126,7 @@ const SignupPage: React.FC = () => {
                   Sign in with Google
                 </button>
 
-                <button className="mb-6 flex w-full items-center justify-center rounded-sm border border-stroke bg-[#f8f8f8] px-6 py-3 text-base text-body-color outline-none transition-all duration-300 hover:border-primary hover:bg-primary/5 hover:text-primary dark:border-transparent dark:bg-[#2C303B] dark:text-body-color-dark dark:shadow-two dark:hover:border-primary dark:hover:bg-primary/5 dark:hover:text-primary dark:hover:shadow-none">
+                <button className="mb-6 flex w-full items-center justify-center rounded-sm border border-stroke bg-[#f8f8f8] px-6 py-3 text-base text-body-color outline-none transition-all duration-300 hover:border-primary hover:bg-primary/5 hover:text-primary dark:border-transparent dark:bg-[#2C303B] dark:text-body-color-dark dark:shadow-two dark:hover:border-primary dark:hover:bg-primary/5 dark:hover:text-primary dark:hover:shadow-none" onClick={()=>{ window.location.href = 'http://localhost:5000/auth/github';}}>
                   <span className="mr-3">
                     <svg
                       fill="currentColor"
@@ -189,7 +191,7 @@ const SignupPage: React.FC = () => {
                       onChange={formik.handleChange}
                       onBlur={formik.handleBlur}
                       autoComplete="email"
-                      className={`w-full rounded border-[1.5px] py-3 px-5 font-medium text-body-color placeholder-body-color outline-none transition-all focus:border-primary focus-visible:shadow-none dark:bg-[#242B51] dark:border-form-strokedark dark:text-white dark:focus:border-primary ${
+                      className={`w-full rounded-sm border border-stroke bg-[#f8f8f8] px-6 py-3 text-base text-body-color outline-none transition-all duration-300 focus:border-primary dark:border-transparent dark:bg-[#2C303B] dark:text-body-color-dark dark:shadow-two dark:focus:border-primary dark:focus:shadow-none ${
                         formik.touched.email && formik.errors.email ? 'border-red-500' : 'border-[#E9EDF9] dark:border-form-strokedark'
                       }`}
                     />
