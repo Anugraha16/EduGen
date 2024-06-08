@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useState } from 'react';
+import { useRouter } from 'next/navigation'; 
 
 interface FormData {
   name: string;
@@ -14,6 +15,7 @@ interface FormData {
 
 const SignupPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
+  const router=useRouter();
 
   const formik = useFormik<FormData>({
     initialValues: {
@@ -66,10 +68,9 @@ const SignupPage: React.FC = () => {
           console.error("Unexpected content type:", contentType);
           throw new Error("Unexpected response from server");
         }
+        
+        router.push('/');
 
-        const data = await response.json();
-        console.log("User registered successfully:", data);
-        // Handle successful signup, e.g., redirect to another page
       } catch (error) {
         console.error("Signup error:", error.message);
         setError("User already exists");
@@ -88,7 +89,7 @@ const SignupPage: React.FC = () => {
                   Create your account
                 </h3>
                 <button className="mb-6 flex w-full items-center justify-center rounded-sm border border-stroke bg-[#f8f8f8] px-6 py-3 text-base text-body-color outline-none transition-all duration-300 hover:border-primary hover:bg-primary/5 hover:text-primary dark:border-transparent dark:bg-[#2C303B] dark:text-body-color-dark dark:shadow-two dark:hover:border-primary dark:hover:bg-primary/5 dark:hover:text-primary dark:hover:shadow-none" onClick={() => {
-                    window.location.href = 'http://localhost:5000/auth/google';
+                    window.location.href = 'http://localhost:5000/auth/google'
                   }}>
                   <span className="mr-3">
                     <svg
@@ -126,7 +127,7 @@ const SignupPage: React.FC = () => {
                   Sign in with Google
                 </button>
 
-                <button className="mb-6 flex w-full items-center justify-center rounded-sm border border-stroke bg-[#f8f8f8] px-6 py-3 text-base text-body-color outline-none transition-all duration-300 hover:border-primary hover:bg-primary/5 hover:text-primary dark:border-transparent dark:bg-[#2C303B] dark:text-body-color-dark dark:shadow-two dark:hover:border-primary dark:hover:bg-primary/5 dark:hover:text-primary dark:hover:shadow-none" onClick={()=>{ window.location.href = 'http://localhost:5000/auth/github';}}>
+                <button className="mb-6 flex w-full items-center justify-center rounded-sm border border-stroke bg-[#f8f8f8] px-6 py-3 text-base text-body-color outline-none transition-all duration-300 hover:border-primary hover:bg-primary/5 hover:text-primary dark:border-transparent dark:bg-[#2C303B] dark:text-body-color-dark dark:shadow-two dark:hover:border-primary dark:hover:bg-primary/5 dark:hover:text-primary dark:hover:shadow-none" onClick={()=>{ window.location.href = 'http://localhost:5000/auth/github'}}>
                   <span className="mr-3">
                     <svg
                       fill="currentColor"

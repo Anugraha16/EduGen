@@ -1,9 +1,10 @@
 const session = require("express-session");
+require('dotenv').config();
 
 module.exports = (app) => {
   app.use(
     session({
-      secret: "your_session_secret",
+      secret: process.env.SESSION_SECRET,
       resave: false,
       saveUninitialized: true,
     })
