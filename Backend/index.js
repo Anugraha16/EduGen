@@ -1,14 +1,10 @@
-const express=require('express');
-const connectDB = require('./lib/db'); 
-const cors=require('cors');
-const app = express();
+const express = require('express');
+const cors = require('cors');
+const connectDB = require('./services/database'); 
 const passport = require('passport');
-const signupRouter = require('./routes/signup');
-const signinRouter=require('./routes/signin');
-const authRoutes = require('./routes/auth');
 const sessionConfig = require('./config/session');
 const passportConfig = require('./config/passport');
-
+const app = express();
 require('dotenv').config();
 
 connectDB();
@@ -28,9 +24,9 @@ try {
   process.exit(1);
 }
 
-app.use('/auth', authRoutes);
-app.use('/signup', signupRouter);
-app.use('/signin', signinRouter);
+app.use('/auth', require('./routes/auth'));
+app.use('/signup', require('./routes/signup'));
+app.use('/signin', require('./routes/signin'));
 
 
 

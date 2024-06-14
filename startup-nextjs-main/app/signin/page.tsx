@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 interface FormData {
   email: string;
   password: string;
+  rememberMe: boolean;
 }
 
 const SigninPage: React.FC = () => {
@@ -19,6 +20,7 @@ const SigninPage: React.FC = () => {
     initialValues: {
       email: "",
       password: "",
+      rememberMe: false,
     },
     validationSchema: Yup.object({
       email: Yup.string()
@@ -49,6 +51,12 @@ const SigninPage: React.FC = () => {
         console.log(data)
         setMessage("Sign-in successful!");
         setError(null);
+
+        if (values.rememberMe) {
+          localStorage.setItem("token", data.token);
+        } else {
+          document.cookie = `token=${data.token}; path=/`;
+        }
         
         // Redirect to homepage after successful sign-in
         router.push('/');
@@ -194,6 +202,9 @@ const SigninPage: React.FC = () => {
                           <input
                             type="checkbox"
                             id="checkboxLabel"
+                            name="rememberMe"
+                            onChange={formik.handleChange}
+                            checked={formik.values.rememberMe}
                             className="sr-only"
                           />
                           <div className="box mr-4 flex h-5 w-5 items-center justify-center rounded border border-body-color border-opacity-20 dark:border-white dark:border-opacity-10">
